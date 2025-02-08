@@ -124,6 +124,7 @@ function moveObstacle(obstacle, bottomObstacle) {
         }
 
         if (checkCollision(obstacle, bottomObstacle)) {
+            collisionSound.play();
             endGame();
         }
     }
