@@ -25,8 +25,10 @@ let obstacleSpeed = 2;
 let score = 0;
 let gameRunning = false;
 let animationFrameId;
+let lastObstacleTime = 0;
+let obstacleInterval = 2000; // Dynamic interval that decreases as score increases
 
-// Set background music to loop
+// Background music settings
 backgroundMusic.loop = true;
 backgroundMusic.volume = 0.5;
 
@@ -42,9 +44,9 @@ function startGame() {
     birdVelocity = 0;
     obstacles.innerHTML = '';
 
-    // Play background music
     backgroundMusic.play();
-
+    
+    lastObstacleTime = performance.now();
     gameLoop();
 }
 
@@ -52,12 +54,8 @@ function endGame() {
     gameRunning = false;
     gameOverScreen.classList.remove('hidden');
     cancelAnimationFrame(animationFrameId);
-
-    // Stop background music
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
-
-    // Play death sound
     dieSound.play();
 }
 
@@ -65,9 +63,9 @@ function checkWin() {
     if (score >= 3) {
         gameRunning = false;
         valentineModal.classList.remove('hidden');
-        cancelAnimationFrame(animationFrameId); // Stop the game loop
+        cancelAnimationFrame(animationFrameId);
         backgroundMusic.pause();
-        let winSound = new Audio('blue.mp3'); // Make sure this file exists in your project
+        let winSound = new Audio('blue.mp3');
         winSound.play();
     }
 }
@@ -75,9 +73,8 @@ function checkWin() {
 function updateBird() {
     birdVelocity += gravity;
     birdTop += birdVelocity;
-    bird.style.top = birdTop + 'px';
+    bird.style.top = `${birdTop}px`;
 
-    // Check if bird hits the ground or ceiling
     if (birdTop > gameHeight - 40 || birdTop < 0) {
         endGame();
     }
@@ -85,23 +82,21 @@ function updateBird() {
 
 function createObstacle() {
     if (!gameRunning) return;
-
+    
     let obstacleHeight = Math.random() * (gameHeight - obstacleGap - 100) + 50;
 
     let topPipe = document.createElement('div');
     topPipe.classList.add('obstacle', 'pipe-top');
-    topPipe.style.backgroundSize = 'cover';
-    topPipe.style.left = gameWidth + 'px';
+    topPipe.style.left = `${gameWidth}px`;
     topPipe.style.top = '0px';
-    topPipe.style.height = obstacleHeight + 'px';
+    topPipe.style.height = `${obstacleHeight}px`;
     obstacles.appendChild(topPipe);
 
     let bottomPipe = document.createElement('div');
     bottomPipe.classList.add('obstacle', 'pipe-bottom');
-    bottomPipe.style.backgroundSize = 'cover';
-    bottomPipe.style.left = gameWidth + 'px';
-    bottomPipe.style.top = (obstacleHeight + obstacleGap) + 'px';
-    bottomPipe.style.height = (gameHeight - obstacleHeight - obstacleGap) + 'px';
+    bottomPipe.style.left = `${gameWidth}px`;
+    bottomPipe.style.top = `${obstacleHeight + obstacleGap}px`;
+    bottomPipe.style.height = `${gameHeight - obstacleHeight - obstacleGap}px`;
     obstacles.appendChild(bottomPipe);
 
     moveObstacle(topPipe, bottomPipe);
@@ -114,18 +109,18 @@ function moveObstacle(obstacle, bottomObstacle) {
         if (!gameRunning) return;
 
         obstacleLeft -= obstacleSpeed;
-        obstacle.style.left = obstacleLeft + 'px';
-        bottomObstacle.style.left = obstacleLeft + 'px';
+        obstacle.style.left = `${obstacleLeft}px`;
+        bottomObstacle.style.left = `${obstacleLeft}px`;
 
         if (obstacleLeft < -obstacleWidth) {
             obstacles.removeChild(obstacle);
             obstacles.removeChild(bottomObstacle);
             score++;
             pointSound.play();
-            scoreDisplay.textContent = 'Score: ' + score;
-            checkWin(); // Check if the player has won
+            scoreDisplay.textContent = `Score: ${score}`;
+            checkWin();
         } else {
-            animationFrameId = requestAnimationFrame(frame); // Restart the animation frame
+            requestAnimationFrame(frame);
         }
 
         if (checkCollision(obstacle, bottomObstacle)) {
@@ -133,7 +128,7 @@ function moveObstacle(obstacle, bottomObstacle) {
         }
     }
 
-    animationFrameId = requestAnimationFrame(frame); // Initial call to start animation
+    requestAnimationFrame(frame);
 }
 
 function checkCollision(obstacle, bottomObstacle) {
@@ -141,22 +136,25 @@ function checkCollision(obstacle, bottomObstacle) {
     let obstacleRect = obstacle.getBoundingClientRect();
     let bottomObstacleRect = bottomObstacle.getBoundingClientRect();
 
-    const isColliding = (
+    return (
         birdRect.left < obstacleRect.right &&
         birdRect.right > obstacleRect.left &&
         (birdRect.top < obstacleRect.bottom || birdRect.bottom > bottomObstacleRect.top)
     );
-
-    if (isColliding) {
-        collisionSound.play();
-    }
-    return isColliding;
 }
 
-function gameLoop() {
+function gameLoop(timestamp) {
     if (!gameRunning) return;
 
     updateBird();
+
+    // Generate obstacles at a controlled interval
+    if (timestamp - lastObstacleTime > obstacleInterval) {
+        createObstacle();
+        lastObstacleTime = timestamp;
+        obstacleInterval = Math.max(1000, 2000 - score * 100); // Speed up over time
+    }
+
     animationFrameId = requestAnimationFrame(gameLoop);
 }
 
@@ -168,12 +166,10 @@ yesButton.addEventListener('click', () => {
 });
 
 noButton.addEventListener('click', () => {
-    // Move the "No" button to a random position
     const modalRect = valentineModal.getBoundingClientRect();
     const buttonRect = noButton.getBoundingClientRect();
     const maxX = modalRect.width - buttonRect.width;
     const maxY = modalRect.height - buttonRect.height;
-
     const randomX = Math.floor(Math.random() * maxX);
     const randomY = Math.floor(Math.random() * maxY);
 
@@ -184,31 +180,22 @@ noButton.addEventListener('click', () => {
 
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
-        if (!gameRunning && !valentineModal.classList.contains('hidden')) {
-            // Prevent starting the game if the Valentine modal is open
-            return;
-        }
+        if (!gameRunning && !valentineModal.classList.contains('hidden')) return;
         if (!gameRunning) {
             startGame();
         } else {
-            birdVelocity = -8; // Make the bird jump
-            jumpSound.play(); // Play jump sound
+            birdVelocity = -8;
+            jumpSound.play();
         }
     }
 });
 
 document.addEventListener('touchstart', () => {
-    if (!gameRunning && !valentineModal.classList.contains('hidden')) {
-        // Prevent starting the game if the Valentine modal is open
-        return;
-    }
+    if (!gameRunning && !valentineModal.classList.contains('hidden')) return;
     if (!gameRunning) {
         startGame();
     } else {
-        birdVelocity = -8; // Make the bird jump
-        jumpSound.play(); // Play jump sound
+        birdVelocity = -8;
+        jumpSound.play();
     }
 });
-
-// Gradually decrease the interval as the score increases
-setInterval(createObstacle, 2000 - Math.min(score * 100, 1800)); 
