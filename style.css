@@ -1,0 +1,176 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #70c5ce;
+    font-family: Arial, sans-serif;
+}
+
+#game {
+    position: absolute;
+    width: 400px;
+    height: 600px;
+    background-image: url('images/background.png');
+    background-size: cover;
+    border: 2px solid #000;
+    overflow: hidden;
+}
+
+#bird {
+    position: absolute;
+    top: 50%;
+    left: 50px;
+    width: 40px;
+    height: 40px;
+    background-image: url('images/bird.png');
+    background-size: cover;
+    transition: top 0.1s ease-out;
+}
+
+.obstacle {
+    position: absolute;
+    width: 60px;
+    background-color: green;
+    transition: left 0.1s linear;
+    background-size: cover;
+    background-position: center;
+    border: 4px solid #000;
+    border-radius: 20px;
+    box-shadow: 
+        0 4px 0 #006400,
+        inset 0 0 10px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(to bottom, #32CD32, #228B22);
+}
+
+/* Bottom pipe cap */
+.pipe-bottom::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    left: 50%; /* Center horizontally */
+    width: 80px;
+    height: 20px;
+    background: linear-gradient(to bottom, #32CD32, #228B22);
+    border: 4px solid #000;
+    border-radius: 10px;
+    box-shadow: 
+        0 4px 0 #006400, 
+        inset 0 0 8px rgba(0, 0, 0, 0.3);
+    transform: translateX(-50%); /* Adjusts the centering */
+}
+
+/* Top pipe cap (flipped) */
+.pipe-top::after {
+    content: "";
+    position: absolute;
+    bottom: -20px;
+    left: 50%; /* Center horizontally */
+    width: 80px;
+    height: 20px;
+    background: linear-gradient(to top, #32CD32, #228B22);
+    border: 4px solid #000;
+    border-radius: 10px;
+    box-shadow: 
+        0 -4px 0 #006400, 
+        inset 0 0 8px rgba(0, 0, 0, 0.3);
+    transform: translateX(-50%); /* Adjusts the centering */
+}
+
+
+
+#score {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    color: white;
+}
+
+#start-screen, #game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: white;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Valentine Modal Styles */
+#valentine-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#valentine-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#valentine-content p {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+#valentine-content button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#valentine-content2 {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#valentine-content2 p {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+#valentine-content2 button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#valentine-confirmation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden {
+    display: none !important;
+}
